@@ -15,12 +15,12 @@ export async function uploadDeployment(callUrl: string, apiKey: string, filePath
         'Umbraco-Api-Key': apiKey
     };
 
-    const uploadResponse = await axios.post<DeploymentResponse>(callUrl,{
+    const uploadResponse = await axios.post(callUrl,{
         file: file
     },{
         headers: headers,
         //validateStatus: status => status === 202
     })
     .then(response => response.data)
-    .catch(error => info(error.toJSON()));
+    .catch(error => info(error));
 }

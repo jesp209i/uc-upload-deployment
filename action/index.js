@@ -15117,7 +15117,7 @@ async function uploadDeployment(callUrl, apiKey, filePath) {
   }, {
     headers
     //validateStatus: status => status === 202
-  }).then((response) => response.data).catch((error) => (0, import_core.info)(error.toJSON()));
+  }).then((response) => response.data).catch((error) => (0, import_core.info)(error));
 }
 
 // src/index.ts
