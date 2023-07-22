@@ -1,4 +1,5 @@
 import axios, { Axios } from "axios";
+import { info } from '@actions/core';
 import { createReadStream } from 'fs';
 
 export interface DeploymentResponse {
@@ -6,7 +7,7 @@ export interface DeploymentResponse {
     "updateMessage": string
 }
 
-export async function uploadDeployment(callUrl: string, apiKey: string, filePath: string): Promise<DeploymentResponse>
+export async function uploadDeployment(callUrl: string, apiKey: string, filePath: string)
 {
     const file = createReadStream(filePath);
     const headers = {
@@ -14,18 +15,12 @@ export async function uploadDeployment(callUrl: string, apiKey: string, filePath
         'Umbraco-Api-Key': apiKey
     };
 
-    try {
-        const uploadResponse = await axios.post<DeploymentResponse>(callUrl,{
-            file: file
-        },{
-            headers: headers,
-            validateStatus: status => status === 202
-        });
-
-        return Promise.resolve(uploadResponse.data);
-    }
-    catch (error)
-    {
-        return Promise.reject("Error during upload");
-    }
+    const uploadResponse = await axios.post<DeploymentResponse>(callUrl,{
+        file: file
+    },{
+        headers: headers,
+        //validateStatus: status => status === 202
+    })
+    .then(response => response.data)
+    .catch(error => info(error.toJSON()));
 }
