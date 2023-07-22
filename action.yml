@@ -1,0 +1,19 @@
+---
+name: Start deployment
+description: Hello
+inputs:
+  project-alias:
+    description: the project alias for the project you are running a deployment on
+    required: true
+  api-key:
+    description: key needed to have access to api
+    required: true
+  deployment-id:
+    description: the deployment id
+    required: true
+  file-path:
+    description: path to source package in workdir
+    required: true
+runs:
+  using: node16
+  main: action/index.js
