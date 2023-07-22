@@ -1,5 +1,5 @@
 ---
-name: Start deployment
+name: Upload deployment Package
 description: Hello
 inputs:
   project-alias:

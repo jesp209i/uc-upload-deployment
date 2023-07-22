@@ -8,6 +8,8 @@ async function run() {
         const deploymentId = getInput('deployment-id');
         const filePath = getInput('file-path');
 
+        info(filePath);
+
         const url = `https://api-internal.umbraco.io/projects/${projectAlias}/deployments/${deploymentId}`
 
         const deployment = await uploadDeployment(url, apiKey, filePath);

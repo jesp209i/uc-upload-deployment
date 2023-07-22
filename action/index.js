@@ -15131,6 +15131,7 @@ async function run() {
     const apiKey = (0, import_core.getInput)("api-key");
     const deploymentId = (0, import_core.getInput)("deployment-id");
     const filePath = (0, import_core.getInput)("file-path");
+    (0, import_core.info)(filePath);
     const url2 = `https://api-internal.umbraco.io/projects/${projectAlias}/deployments/${deploymentId}`;
     const deployment = await uploadDeployment(url2, apiKey, filePath);
     (0, import_core.info)("Source Package uploaded successfully");
