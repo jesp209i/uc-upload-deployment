@@ -44,7 +44,7 @@ export async function uploadDeployment(callUrl: string, apiKey: string, filePath
         });
 
         form.pipe(req);
-        req.end();
+        //req.end();
     });
 }
 
