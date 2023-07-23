@@ -11853,7 +11853,6 @@ Headers: ${JSON.stringify(response.headers)}`;
       }
     );
     form.pipe(req);
-    req.end();
   });
 }
 
