@@ -11652,7 +11652,10 @@ async function uploadDeployment(callUrl, apiKey, filePath) {
       requestOptions,
       (response) => {
         if (response.statusCode !== 202) {
-          return reject(new Error(JSON.stringify(response)));
+          const errorMessage = `statusCode: ${response.statusCode}
+StatusMessage: ${response.statusMessage}
+Headers: ${JSON.stringify(response.headers)}`;
+          return reject(new Error(errorMessage));
         }
         const chunks = [];
         response.on("data", (chunk) => chunks.push(chunk));

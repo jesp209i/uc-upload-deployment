@@ -28,7 +28,8 @@ export async function uploadDeployment(callUrl: string, apiKey: string, filePath
         const req = request(callUrl, requestOptions, 
             response => {
                 if (response.statusCode !== 202){
-                    return reject(new Error(JSON.stringify(response)));
+                    const errorMessage = `statusCode: ${response.statusCode}\nStatusMessage: ${response.statusMessage}\nHeaders: ${JSON.stringify(response.headers)}`;
+                    return reject(new Error(errorMessage));
                 }
             const chunks: any[] = [];
         
