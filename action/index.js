@@ -11647,22 +11647,29 @@ async function uploadDeployment(callUrl, apiKey, filePath) {
       headers
     };
     let uploadResponse;
-    const req = (0, import_https.request)(callUrl, requestOptions, (response) => {
-      const chunks = [];
-      response.on("data", (chunk) => chunks.push(chunk));
-      response.on("end", () => {
-        const data = Buffer.concat(chunks).toString();
-        const obj = JSON.parse(data);
-        const result = {
-          deploymentState: obj.deploymentState,
-          updateMessage: obj.updateMessage
-        };
-        return resolve(result);
-      });
-      response.on("error", () => {
-        return reject(response.statusMessage);
-      });
-    });
+    const req = (0, import_https.request)(
+      callUrl,
+      requestOptions,
+      (response) => {
+        if (response.statusCode !== 202) {
+          return reject(new Error(JSON.stringify(response)));
+        }
+        const chunks = [];
+        response.on("data", (chunk) => chunks.push(chunk));
+        response.on("end", () => {
+          const data = Buffer.concat(chunks).toString();
+          const obj = JSON.parse(data);
+          const result = {
+            deploymentState: obj.deploymentState,
+            updateMessage: obj.updateMessage
+          };
+          return resolve(result);
+        });
+        response.on("error", () => {
+          return reject(new Error(JSON.stringify(response)));
+        });
+      }
+    );
     form.pipe(req);
   });
 }

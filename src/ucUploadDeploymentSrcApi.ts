@@ -7,7 +7,7 @@ export interface DeploymentResponse {
     "updateMessage": string
 }
 
-export async function uploadDeployment(callUrl: string, apiKey: string, filePath: string)
+export async function uploadDeployment(callUrl: string, apiKey: string, filePath: string): Promise<DeploymentResponse>
 {
     return new Promise((resolve, reject) =>{
         const readStream = createReadStream(filePath);
@@ -25,7 +25,11 @@ export async function uploadDeployment(callUrl: string, apiKey: string, filePath
 
         let uploadResponse: DeploymentResponse;
 
-        const req = request(callUrl, requestOptions, response => {
+        const req = request(callUrl, requestOptions, 
+            response => {
+                if (response.statusCode !== 202){
+                    return reject(new Error(JSON.stringify(response)));
+                }
             const chunks: any[] = [];
         
             response.on('data', chunk => chunks.push(chunk));
@@ -39,7 +43,7 @@ export async function uploadDeployment(callUrl: string, apiKey: string, filePath
                 return resolve(result);
             });
             response.on('error', ()=>{
-                return reject(response.statusMessage);
+                return reject(new Error(JSON.stringify(response)));
             });
         });
 
