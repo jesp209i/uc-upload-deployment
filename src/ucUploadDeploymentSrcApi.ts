@@ -1,5 +1,6 @@
 import { request } from 'https';
 import FormData from 'form-data';
+import { info } from '@actions/core';
 import { createReadStream } from 'fs';
 
 export interface DeploymentResponse {
@@ -17,6 +18,8 @@ export async function uploadDeployment(callUrl: string, apiKey: string, filePath
 
         const headers = form.getHeaders();
         headers['Umbraco-Api-Key'] = apiKey;
+
+        info(JSON.stringify(headers));
 
         const requestOptions = {
             method : 'POST',
@@ -49,7 +52,8 @@ export async function uploadDeployment(callUrl: string, apiKey: string, filePath
         });
 
         form.pipe(req);
-        //req.end();
+        
+        req.end();
     });
 }
 
