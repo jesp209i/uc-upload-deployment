@@ -11864,7 +11864,6 @@ async function run() {
   const filePath = (0, import_core.getInput)("file-path");
   const fileExists = await (0, import_io_util.exists)(filePath);
   if (!fileExists) {
-    (0, import_core.warning)("File was not found on location");
     (0, import_core.setFailed)("File was not found on location");
     return;
   }

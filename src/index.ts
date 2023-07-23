@@ -12,7 +12,6 @@ async function run() {
     const fileExists = await  exists(filePath);
     if (!fileExists)
     {
-        warning("File was not found on location");
         setFailed("File was not found on location");
         return;
     }
