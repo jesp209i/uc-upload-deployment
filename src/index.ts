@@ -1,5 +1,5 @@
 import { getInput, setFailed, info, warning } from '@actions/core';
-import { uploadDeployment } from './ucUploadDeploymentSrcApi';
+import { exec } from '@actions/exec';
 
 async function run() {
     try {
@@ -10,7 +10,10 @@ async function run() {
 
         const url = `https://api-internal.umbraco.io/projects/${projectAlias}/deployments/${deploymentId}`
 
-        const deployment = await uploadDeployment(url, apiKey, filePath);
+        const srcDir = __dirname;
+
+        await exec(`sh ${srcDir}/upload_package.sh ${url} ${apiKey} ${filePath}`)
+
         info("Source Package uploaded successfully");
 
     } catch (error) {    
