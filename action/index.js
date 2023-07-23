@@ -11632,7 +11632,7 @@ var require_form_data = __commonJS({
 var import_core = __toESM(require_core());
 
 // src/ucUploadDeploymentSrcApi.ts
-var import_http = require("http");
+var import_https = require("https");
 var import_form_data = __toESM(require_form_data());
 var import_fs = require("fs");
 async function uploadDeployment(callUrl, apiKey, filePath) {
@@ -11647,7 +11647,7 @@ async function uploadDeployment(callUrl, apiKey, filePath) {
       headers
     };
     let uploadResponse;
-    const req = (0, import_http.request)(callUrl, requestOptions, (response) => {
+    const req = (0, import_https.request)(callUrl, requestOptions, (response) => {
       const chunks = [];
       response.on("data", (chunk) => chunks.push(chunk));
       response.on("end", () => {

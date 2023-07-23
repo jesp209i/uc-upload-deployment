@@ -1,4 +1,4 @@
-import { request } from 'http';
+import { request } from 'https';
 import FormData from 'form-data';
 import { createReadStream } from 'fs';
 
