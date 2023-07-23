@@ -1,5 +1,5 @@
-import axios, { Axios } from "axios";
-import { info } from '@actions/core';
+import { request } from 'http';
+import FormData from 'form-data';
 import { createReadStream } from 'fs';
 
 export interface DeploymentResponse {
@@ -9,18 +9,42 @@ export interface DeploymentResponse {
 
 export async function uploadDeployment(callUrl: string, apiKey: string, filePath: string)
 {
-    const file = createReadStream(filePath);
-    const headers = {
-        'Content-Type': 'multipart/form-data',
-        'Umbraco-Api-Key': apiKey
-    };
+    return new Promise((resolve, reject) =>{
+        const readStream = createReadStream(filePath);
 
-    const uploadResponse = await axios.post(callUrl,{
-        file: file
-    },{
-        headers: headers,
-        //validateStatus: status => status === 202
-    })
-    .then(response => response.data)
-    .catch(error => info(error));
+        const form = new FormData();
+        form.append('file', readStream);
+
+        const headers = form.getHeaders();
+        headers['Umbraco-Api-Key'] = apiKey;
+
+        const requestOptions = {
+            method : 'POST',
+            headers : headers
+        };
+
+        let uploadResponse: DeploymentResponse;
+
+        const req = request(callUrl, requestOptions, response => {
+            const chunks: any[] = [];
+        
+            response.on('data', chunk => chunks.push(chunk));
+            response.on('end', () => {
+                const data = Buffer.concat(chunks).toString();
+                const obj = JSON.parse(data);
+                const result: DeploymentResponse = {
+                    deploymentState: obj.deploymentState,
+                    updateMessage: obj.updateMessage
+                }
+                return resolve(result);
+            });
+            response.on('error', ()=>{
+                return reject(response.statusMessage);
+            });
+        });
+
+        form.pipe(req);
+        req.end();
+    });
 }
+
