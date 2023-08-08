@@ -570,7 +570,12 @@ var require_proxy = __commonJS({
         }
       })();
       if (proxyVar) {
-        return new URL(proxyVar);
+        try {
+          return new URL(proxyVar);
+        } catch (_a) {
+          if (!proxyVar.startsWith("http://") && !proxyVar.startsWith("https://"))
+            return new URL(`http://${proxyVar}`);
+        }
       } else {
         return void 0;
       }
@@ -998,6 +1003,19 @@ var require_lib = __commonJS({
             });
             this.message.on("end", () => {
               resolve(output.toString());
+            });
+          }));
+        });
+      }
+      readBodyBuffer() {
+        return __awaiter(this, void 0, void 0, function* () {
+          return new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
+            const chunks = [];
+            this.message.on("data", (chunk) => {
+              chunks.push(chunk);
+            });
+            this.message.on("end", () => {
+              resolve(Buffer.concat(chunks));
             });
           }));
         });
@@ -11505,11 +11523,11 @@ var require_form_data = __commonJS({
     var mime = require_mime_types();
     var asynckit = require_asynckit();
     var populate = require_populate();
-    module2.exports = FormData2;
-    util.inherits(FormData2, CombinedStream);
-    function FormData2(options) {
-      if (!(this instanceof FormData2)) {
-        return new FormData2(options);
+    module2.exports = FormData3;
+    util.inherits(FormData3, CombinedStream);
+    function FormData3(options) {
+      if (!(this instanceof FormData3)) {
+        return new FormData3(options);
       }
       this._overheadLength = 0;
       this._valueLength = 0;
@@ -11520,9 +11538,9 @@ var require_form_data = __commonJS({
         this[option] = options[option];
       }
     }
-    FormData2.LINE_BREAK = "\r\n";
-    FormData2.DEFAULT_CONTENT_TYPE = "application/octet-stream";
-    FormData2.prototype.append = function(field, value, options) {
+    FormData3.LINE_BREAK = "\r\n";
+    FormData3.DEFAULT_CONTENT_TYPE = "application/octet-stream";
+    FormData3.prototype.append = function(field, value, options) {
       options = options || {};
       if (typeof options == "string") {
         options = { filename: options };
@@ -11542,7 +11560,7 @@ var require_form_data = __commonJS({
       append(footer);
       this._trackLength(header, value, options);
     };
-    FormData2.prototype._trackLength = function(header, value, options) {
+    FormData3.prototype._trackLength = function(header, value, options) {
       var valueLength = 0;
       if (options.knownLength != null) {
         valueLength += +options.knownLength;
@@ -11552,7 +11570,7 @@ var require_form_data = __commonJS({
         valueLength = Buffer.byteLength(value);
       }
       this._valueLength += valueLength;
-      this._overheadLength += Buffer.byteLength(header) + FormData2.LINE_BREAK.length;
+      this._overheadLength += Buffer.byteLength(header) + FormData3.LINE_BREAK.length;
       if (!value || !value.path && !(value.readable && value.hasOwnProperty("httpVersion")) && !(value instanceof Stream)) {
         return;
       }
@@ -11560,7 +11578,7 @@ var require_form_data = __commonJS({
         this._valuesToMeasure.push(value);
       }
     };
-    FormData2.prototype._lengthRetriever = function(value, callback) {
+    FormData3.prototype._lengthRetriever = function(value, callback) {
       if (value.hasOwnProperty("fd")) {
         if (value.end != void 0 && value.end != Infinity && value.start != void 0) {
           callback(null, value.end + 1 - (value.start ? value.start : 0));
@@ -11587,7 +11605,7 @@ var require_form_data = __commonJS({
         callback("Unknown stream");
       }
     };
-    FormData2.prototype._multiPartHeader = function(field, value, options) {
+    FormData3.prototype._multiPartHeader = function(field, value, options) {
       if (typeof options.header == "string") {
         return options.header;
       }
@@ -11615,12 +11633,12 @@ var require_form_data = __commonJS({
           header = [header];
         }
         if (header.length) {
-          contents += prop + ": " + header.join("; ") + FormData2.LINE_BREAK;
+          contents += prop + ": " + header.join("; ") + FormData3.LINE_BREAK;
         }
       }
-      return "--" + this.getBoundary() + FormData2.LINE_BREAK + contents + FormData2.LINE_BREAK;
+      return "--" + this.getBoundary() + FormData3.LINE_BREAK + contents + FormData3.LINE_BREAK;
     };
-    FormData2.prototype._getContentDisposition = function(value, options) {
+    FormData3.prototype._getContentDisposition = function(value, options) {
       var filename, contentDisposition;
       if (typeof options.filepath === "string") {
         filename = path.normalize(options.filepath).replace(/\\/g, "/");
@@ -11634,7 +11652,7 @@ var require_form_data = __commonJS({
       }
       return contentDisposition;
     };
-    FormData2.prototype._getContentType = function(value, options) {
+    FormData3.prototype._getContentType = function(value, options) {
       var contentType = options.contentType;
       if (!contentType && value.name) {
         contentType = mime.lookup(value.name);
@@ -11649,13 +11667,13 @@ var require_form_data = __commonJS({
         contentType = mime.lookup(options.filepath || options.filename);
       }
       if (!contentType && typeof value == "object") {
-        contentType = FormData2.DEFAULT_CONTENT_TYPE;
+        contentType = FormData3.DEFAULT_CONTENT_TYPE;
       }
       return contentType;
     };
-    FormData2.prototype._multiPartFooter = function() {
+    FormData3.prototype._multiPartFooter = function() {
       return function(next) {
-        var footer = FormData2.LINE_BREAK;
+        var footer = FormData3.LINE_BREAK;
         var lastPart = this._streams.length === 0;
         if (lastPart) {
           footer += this._lastBoundary();
@@ -11663,10 +11681,10 @@ var require_form_data = __commonJS({
         next(footer);
       }.bind(this);
     };
-    FormData2.prototype._lastBoundary = function() {
-      return "--" + this.getBoundary() + "--" + FormData2.LINE_BREAK;
+    FormData3.prototype._lastBoundary = function() {
+      return "--" + this.getBoundary() + "--" + FormData3.LINE_BREAK;
     };
-    FormData2.prototype.getHeaders = function(userHeaders) {
+    FormData3.prototype.getHeaders = function(userHeaders) {
       var header;
       var formHeaders = {
         "content-type": "multipart/form-data; boundary=" + this.getBoundary()
@@ -11678,16 +11696,16 @@ var require_form_data = __commonJS({
       }
       return formHeaders;
     };
-    FormData2.prototype.setBoundary = function(boundary) {
+    FormData3.prototype.setBoundary = function(boundary) {
       this._boundary = boundary;
     };
-    FormData2.prototype.getBoundary = function() {
+    FormData3.prototype.getBoundary = function() {
       if (!this._boundary) {
         this._generateBoundary();
       }
       return this._boundary;
     };
-    FormData2.prototype.getBuffer = function() {
+    FormData3.prototype.getBuffer = function() {
       var dataBuffer = new Buffer.alloc(0);
       var boundary = this.getBoundary();
       for (var i = 0, len = this._streams.length; i < len; i++) {
@@ -11698,20 +11716,20 @@ var require_form_data = __commonJS({
             dataBuffer = Buffer.concat([dataBuffer, Buffer.from(this._streams[i])]);
           }
           if (typeof this._streams[i] !== "string" || this._streams[i].substring(2, boundary.length + 2) !== boundary) {
-            dataBuffer = Buffer.concat([dataBuffer, Buffer.from(FormData2.LINE_BREAK)]);
+            dataBuffer = Buffer.concat([dataBuffer, Buffer.from(FormData3.LINE_BREAK)]);
           }
         }
       }
       return Buffer.concat([dataBuffer, Buffer.from(this._lastBoundary())]);
     };
-    FormData2.prototype._generateBoundary = function() {
+    FormData3.prototype._generateBoundary = function() {
       var boundary = "--------------------------";
       for (var i = 0; i < 24; i++) {
         boundary += Math.floor(Math.random() * 10).toString(16);
       }
       this._boundary = boundary;
     };
-    FormData2.prototype.getLengthSync = function() {
+    FormData3.prototype.getLengthSync = function() {
       var knownLength = this._overheadLength + this._valueLength;
       if (this._streams.length) {
         knownLength += this._lastBoundary().length;
@@ -11721,14 +11739,14 @@ var require_form_data = __commonJS({
       }
       return knownLength;
     };
-    FormData2.prototype.hasKnownLength = function() {
+    FormData3.prototype.hasKnownLength = function() {
       var hasKnownLength = true;
       if (this._valuesToMeasure.length) {
         hasKnownLength = false;
       }
       return hasKnownLength;
     };
-    FormData2.prototype.getLength = function(cb) {
+    FormData3.prototype.getLength = function(cb) {
       var knownLength = this._overheadLength + this._valueLength;
       if (this._streams.length) {
         knownLength += this._lastBoundary().length;
@@ -11748,7 +11766,7 @@ var require_form_data = __commonJS({
         cb(null, knownLength);
       });
     };
-    FormData2.prototype.submit = function(params, cb) {
+    FormData3.prototype.submit = function(params, cb) {
       var request2, options, defaults = { method: "post" };
       if (typeof params == "string") {
         params = parseUrl(params);
@@ -11793,14 +11811,14 @@ var require_form_data = __commonJS({
       }.bind(this));
       return request2;
     };
-    FormData2.prototype._error = function(err) {
+    FormData3.prototype._error = function(err) {
       if (!this.error) {
         this.error = err;
         this.pause();
         this.emit("error", err);
       }
     };
-    FormData2.prototype.toString = function() {
+    FormData3.prototype.toString = function() {
       return "[object FormData]";
     };
   }
@@ -11810,76 +11828,165 @@ var require_form_data = __commonJS({
 var import_core = __toESM(require_core());
 var import_io_util = __toESM(require_io_util());
 
-// src/ucUploadDeploymentSrcApi.ts
+// node_modules/@jam-test-umbraco/umbraco-cloud-deployment-apiclient/src/ApiClient.ts
 var import_https = require("https");
+var import_form_data2 = __toESM(require_form_data());
+
+// node_modules/@jam-test-umbraco/umbraco-cloud-deployment-apiclient/src/apiTypes.ts
+var PrepareDeploymentRequest = class {
+  commitMessage;
+  constructor(commitMessage) {
+    this.commitMessage = commitMessage;
+  }
+};
+
+// node_modules/@jam-test-umbraco/umbraco-cloud-deployment-apiclient/src/apiHelpers.ts
 var import_form_data = __toESM(require_form_data());
 var import_fs = require("fs");
-async function uploadDeployment(callUrl, apiKey, filePath) {
-  return new Promise((resolve, reject) => {
-    const readStream = (0, import_fs.createReadStream)(filePath);
-    const form = new import_form_data.default();
-    form.append("file", readStream);
-    const headers = form.getHeaders();
-    headers["Umbraco-Api-Key"] = apiKey;
+function readResponseChunksAs(responseBody) {
+  const data = Buffer.concat(responseBody).toString();
+  const result = JSON.parse(data);
+  return result;
+}
+function generateHeaders(apiKey) {
+  return {
+    "content-type": "application/json",
+    "Umbraco-Api-Key": apiKey
+  };
+}
+function createFormDataForUpload(filePath) {
+  const readStream = (0, import_fs.createReadStream)(filePath);
+  const form = new import_form_data.default();
+  form.append("file", readStream);
+  return form;
+}
+var urlGenerator;
+((urlGenerator2) => {
+  function makeBaseProjectDeploymentUrl(baseUrl, projectAlias, addDeployments = false) {
+    const deployment = addDeployments ? "/deployments" : "";
+    return `${baseUrl}/projects/${projectAlias}${deployment}`;
+  }
+  urlGenerator2.makeBaseProjectDeploymentUrl = makeBaseProjectDeploymentUrl;
+  function makeDeploymentUrl(baseUrl, projectAlias, deploymentId) {
+    return `${makeBaseProjectDeploymentUrl(baseUrl, projectAlias, true)}/${deploymentId}`;
+  }
+  urlGenerator2.makeDeploymentUrl = makeDeploymentUrl;
+  function makeGetDeploymentsUrl(baseUrl, projectAlias, skip, take) {
+    return `${makeBaseProjectDeploymentUrl(baseUrl, projectAlias, true)}?skip=${skip}&take=${take}`;
+  }
+  urlGenerator2.makeGetDeploymentsUrl = makeGetDeploymentsUrl;
+})(urlGenerator || (urlGenerator = {}));
+
+// node_modules/@jam-test-umbraco/umbraco-cloud-deployment-apiclient/src/ApiClient.ts
+var ApiClient = class {
+  _baseUrl;
+  _projectAlias;
+  _apiKey;
+  constructor(baseUrl, projectAlias, apiKey) {
+    this._baseUrl = baseUrl;
+    this._projectAlias = projectAlias;
+    this._apiKey = apiKey;
+  }
+  async getDeployments(skip = 0, take = 1) {
+    const url = urlGenerator.makeGetDeploymentsUrl(this._baseUrl, this._projectAlias, skip, take);
     const requestOptions = {
-      method: "POST",
+      method: "GET" /* GET */,
+      headers: generateHeaders(this._apiKey)
+    };
+    return this.httpRequest(url, requestOptions, null);
+  }
+  async uploadDeployment(deploymentId, filePath) {
+    const url = `${urlGenerator.makeDeploymentUrl(this._baseUrl, this._projectAlias, deploymentId)}/package`;
+    const form = createFormDataForUpload(filePath);
+    const headers = form.getHeaders();
+    headers["Umbraco-Api-Key"] = this._apiKey;
+    const requestOptions = {
+      method: "POST" /* POST */,
       headers
     };
-    let uploadResponse;
-    const req = (0, import_https.request)(
-      callUrl,
-      requestOptions,
-      (response) => {
-        if (response.statusCode !== 202) {
-          const errorMessage = `statusCode: ${response.statusCode}
-StatusMessage: ${response.statusMessage}
-Headers: ${JSON.stringify(response.headers)}`;
-          return reject(new Error(errorMessage));
-        }
-        const chunks = [];
-        response.on("data", (chunk) => chunks.push(chunk));
+    return this.httpRequest(url, requestOptions, form);
+  }
+  async startDeployment(deploymentId) {
+    const url = `${urlGenerator.makeDeploymentUrl(this._baseUrl, this._projectAlias, deploymentId)}`;
+    const requestOptions = {
+      method: "PATCH" /* PATCH */,
+      headers: generateHeaders(this._apiKey)
+    };
+    return this.httpRequest(url, requestOptions, null);
+  }
+  async prepareDeployment(commitMessage) {
+    const url = urlGenerator.makeBaseProjectDeploymentUrl(this._baseUrl, this._projectAlias, true);
+    const requestBody = new PrepareDeploymentRequest(commitMessage);
+    const requestOptions = {
+      method: "POST" /* POST */,
+      headers: generateHeaders(this._apiKey)
+    };
+    return this.httpRequest(url, requestOptions, requestBody);
+  }
+  async getDeploymentStatus(deploymentId) {
+    const url = `${urlGenerator.makeDeploymentUrl(this._baseUrl, this._projectAlias, deploymentId)}`;
+    const requestOptions = {
+      method: "GET" /* GET */,
+      headers: generateHeaders(this._apiKey)
+    };
+    return this.httpRequest(url, requestOptions, null);
+  }
+  httpRequest(url, requestOptions, postData) {
+    return new Promise(function(resolve, reject) {
+      var req = (0, import_https.request)(url, requestOptions, function(response) {
+        const responseBodyChunks = [];
+        response.on("data", (chunk) => responseBodyChunks.push(chunk));
         response.on("end", () => {
-          const data = Buffer.concat(chunks).toString();
-          const obj = JSON.parse(data);
-          const result = {
-            deploymentState: obj.deploymentState,
-            updateMessage: obj.updateMessage
-          };
-          return resolve(result);
+          switch (response.statusCode) {
+            case 400:
+            case 401:
+            case 404:
+            case 409:
+              return reject(readResponseChunksAs(responseBodyChunks));
+            case 200:
+            case 201:
+            case 202:
+              return resolve(readResponseChunksAs(responseBodyChunks));
+            default:
+              return reject(`unknown error: ${response.statusCode}`);
+          }
         });
-        response.on("error", () => {
-          return reject(new Error(JSON.stringify(response)));
-        });
+        response.on("error", () => new Error("HTTP call failed"));
+      });
+      req.on("error", function(err) {
+        reject(err);
+      });
+      if (postData instanceof import_form_data2.default) {
+        postData.pipe(req);
       }
-    );
-    form.pipe(req);
-  });
-}
+      if (postData instanceof PrepareDeploymentRequest) {
+        req.write(JSON.stringify(postData));
+      }
+      req.end();
+    });
+  }
+};
 
 // src/index.ts
 async function run() {
-  const projectAlias = (0, import_core.getInput)("project-alias");
-  const apiKey = (0, import_core.getInput)("api-key");
-  const deploymentId = (0, import_core.getInput)("deployment-id");
-  const filePath = (0, import_core.getInput)("file-path");
-  const fileExists = await (0, import_io_util.exists)(filePath);
-  if (!fileExists) {
-    (0, import_core.setFailed)("File was not found on location");
-    return;
-  }
-  const url = `https://api-internal.umbraco.io/projects/${projectAlias}/deployments/${deploymentId}/package`;
-  uploadDeployment(url, apiKey, filePath).then(
-    (response) => {
-      const messages = response.updateMessage.split("\n");
-      const latest = messages.pop();
-      (0, import_core.info)(`${latest}`);
-      (0, import_core.info)("Source Package uploaded successfully");
-    },
-    (errorResponse) => {
-      (0, import_core.warning)(errorResponse);
-      (0, import_core.setFailed)("Upload failed");
+  try {
+    const apiBaseUrl = (0, import_core.getInput)("api-base-url", { required: true });
+    const projectAlias = (0, import_core.getInput)("project-alias", { required: true });
+    const apiKey = (0, import_core.getInput)("api-key", { required: true });
+    const deploymentId = (0, import_core.getInput)("deployment-id", { required: true });
+    const filePath = (0, import_core.getInput)("file-path", { required: true });
+    const fileExists = await (0, import_io_util.exists)(filePath);
+    if (!fileExists) {
+      (0, import_core.setFailed)("File was not found on location");
+      return;
     }
-  );
+    const client = new ApiClient(apiBaseUrl, projectAlias, apiKey);
+    const response = await client.uploadDeployment(deploymentId, filePath);
+    (0, import_core.info)("Source Package uploaded successfully");
+  } catch (error) {
+    (0, import_core.warning)(`Error: ${error}`);
+    (0, import_core.setFailed)("Upload failed");
+  }
 }
 run();
 /*! Bundled license information:
