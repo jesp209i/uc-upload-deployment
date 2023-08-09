@@ -11951,18 +11951,21 @@ var ApiClient = class {
               return reject(`unknown error: ${response.statusCode}`);
           }
         });
-        response.on("error", () => new Error("HTTP call failed"));
+        response.on("error", (err) => reject(new Error(`HTTP call failed: ${err}`)));
       });
-      req.on("error", function(err) {
-        reject(err);
+      req.on("error", (err) => {
+        reject(new Error(`HTTP call failed: ${err}`));
       });
       if (postData instanceof import_form_data2.default) {
         postData.pipe(req);
       }
       if (postData instanceof PrepareDeploymentRequest) {
         req.write(JSON.stringify(postData));
+        req.end();
       }
-      req.end();
+      if (["GET", "PATCH"].includes(requestOptions.method)) {
+        req.end();
+      }
     });
   }
 };
